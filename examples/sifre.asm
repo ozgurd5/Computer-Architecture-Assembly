@@ -1,0 +1,56 @@
+.MODEL SMALL
+.STACK 100H
+
+.DATA
+	password DB '1234'
+	input DB 4 DUP(?)
+
+	msgYes DB 13,10,'YES$'
+	msgNo DB 13,10,'NO$'
+
+.CODE
+MAIN PROC
+	MOV AX, @DATA
+	MOV DS, AX
+
+	MOV CX, 4
+	LEA SI, input
+
+READ_LOOP:
+	MOV AH, 01H
+	INT 21H
+
+	MOV [SI], AL
+	INC SI
+	LOOP READ_LOOP
+
+	MOV CX, 4
+	LEA SI, input
+	LEA DI, password
+
+COMPARE_LOOP:
+	MOV AL, [SI]
+	CMP AL, [DI]
+	JNE WRONG
+
+	INC SI
+	INC DI
+	LOOP COMPARE_LOOP
+
+CORRECT:
+	MOV AH, 09H
+	LEA DX, msgYes
+	INT 21H
+	JMP EXIT
+
+WRONG:
+	MOV AH, 09H
+	LEA DX, msgNo
+	INT 21H
+
+EXIT:
+	MOV AH, 4CH
+	INT 21H
+
+MAIN ENDP
+END MAIN
